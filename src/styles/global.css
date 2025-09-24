@@ -1,0 +1,28 @@
+:root {
+  --color-primary: #ffb000;
+  --color-light: #F1F5F9;
+  --color-secondary: #242424;
+}
+
+/* Apply font & sizing */
+* {
+  font-family: "Outfit", sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Page background and text defaults */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-light);
+  color: var(--color-secondary);
+}
+
+/* small helpers that use CSS vars (you can also use Tailwind's arbitrary values like bg-[var(--color-primary)]) */
+.bg-primary { background-color: var(--color-primary); }
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
