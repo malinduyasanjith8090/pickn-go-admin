@@ -2,30 +2,52 @@
 import React, { useState } from "react";
 import logo from "../assets/logo.jpeg";
 
-const users = [
-  { email: "sasinphoto2139@gmail.com", password: "123456", name: "Sasin" },
-  { email: "kaweesha.nj@gmail.com", password: "123456", name: "Kaweesha" },
-  { email: "mavithashehar@gmail.com", password: "123456", name: "Shehar" },
+// ✅ List of allowed admin emails
+const ADMIN_EMAILS = [
+  "sasinphoto2139@gmail.com",
+  "kaweesha.nj@gmail.com",
+  "mavithashehar@gmail.com",
 ];
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const foundUser = users.find(
-      (user) => user.email === email && user.password === password
-    );
+    try {
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!foundUser) {
-      setError("Invalid email or password");
-      return;
+      const data = await response.json();
+      setLoading(false);
+
+      if (!response.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // ✅ Check if the email belongs to an admin
+      if (!ADMIN_EMAILS.includes(email)) {
+        setError("Access denied. Only admins can log in.");
+        return;
+      }
+
+      // If admin, log in successfully
+      onLogin(data);
+    } catch (err) {
+      setLoading(false);
+      setError("Something went wrong. Please try again.");
+      console.error(err);
     }
-
-    onLogin(foundUser); // Send the full user data to parent
   }
 
   return (
@@ -37,12 +59,9 @@ export default function Login({ onLogin }) {
         backgroundPosition: "center",
       }}
     >
-      {/* Black Overlay */}
       <div className="absolute inset-0 bg-black opacity-40"></div>
 
-      {/* Login Card */}
       <div className="relative w-full max-w-md bg-white bg-opacity-90 rounded-lg shadow-lg p-8 border border-gray-200 z-10">
-        {/* Logo */}
         <div className="flex justify-center mb-4">
           <img
             src={logo}
@@ -51,12 +70,10 @@ export default function Login({ onLogin }) {
           />
         </div>
 
-        {/* Title */}
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
           PickNGo Admin Login
         </h1>
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email Field */}
           <div>
@@ -67,6 +84,7 @@ export default function Login({ onLogin }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              required
             />
           </div>
 
@@ -79,6 +97,7 @@ export default function Login({ onLogin }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              required
             />
           </div>
 
@@ -89,8 +108,9 @@ export default function Login({ onLogin }) {
           <button
             type="submit"
             className="w-full bg-[var(--color-primary)] text-white py-2 rounded-lg font-semibold hover:bg-yellow-500 transition duration-200"
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>

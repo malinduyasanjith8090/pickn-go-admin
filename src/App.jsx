@@ -14,20 +14,35 @@ const Feedback = () => <div className="p-6">Customer Feedback Page</div>;
 const Catalog = () => <div className="p-6">Catalog Page</div>;
 const Settings = () => <div className="p-6">Settings Page</div>;
 
+// Admin email → name mapping
+const ADMIN_NAMES = {
+  "sasinphoto2139@gmail.com": "Sasin",
+  "kaweesha.nj@gmail.com": "Kaweesha",
+  "mavithashehar@gmail.com": "Shehar",
+};
+
 export default function App() {
   const [user, setUser] = useState(null); // null = not logged in
+
+  const handleLogin = (loggedInUser) => {
+    // Map email to name
+    const name = ADMIN_NAMES[loggedInUser.email] || "Admin";
+    setUser({ ...loggedInUser, name });
+  };
+
+  const handleLogout = () => setUser(null);
 
   return (
     <Router>
       <Routes>
-        {/* Default route: show login if not logged in */}
+        {/* Default route */}
         <Route
           path="/"
           element={
             user ? (
               <Navigate to="/admin/dashboard" />
             ) : (
-              <Login onLogin={(loggedInUser) => setUser(loggedInUser)} />
+              <Login onLogin={handleLogin} />
             )
           }
         />
@@ -37,7 +52,7 @@ export default function App() {
           <>
             <Route
               path="/admin/dashboard"
-              element={<Dashboard onLogout={() => setUser(null)} user={user} />}
+              element={<Dashboard user={user} onLogout={handleLogout} />}
             />
             <Route path="/admin/booking" element={<Booking />} />
             <Route path="/admin/profile" element={<Profile />} />
@@ -49,7 +64,7 @@ export default function App() {
           </>
         )}
 
-        {/* Catch-all: if not found, go home */}
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
