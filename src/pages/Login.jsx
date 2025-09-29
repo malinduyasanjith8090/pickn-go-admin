@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import logo from "../assets/logo.jpeg";
 
-// ✅ List of allowed admin emails
+// List of allowed admin emails
 const ADMIN_EMAILS = [
   "sasinphoto2139@gmail.com",
   "kaweesha.nj@gmail.com",
@@ -35,13 +35,16 @@ export default function Login({ onLogin }) {
         return;
       }
 
-      // ✅ Check if the email belongs to an admin
+      // Check if admin
       if (!ADMIN_EMAILS.includes(email)) {
         setError("Access denied. Only admins can log in.");
         return;
       }
 
-      // If admin, log in successfully
+      // Store token in localStorage
+      localStorage.setItem("token", data.token);
+
+      // Trigger parent login handler
       onLogin(data);
     } catch (err) {
       setLoading(false);
@@ -60,7 +63,6 @@ export default function Login({ onLogin }) {
       }}
     >
       <div className="absolute inset-0 bg-black opacity-40"></div>
-
       <div className="relative w-full max-w-md bg-white bg-opacity-90 rounded-lg shadow-lg p-8 border border-gray-200 z-10">
         <div className="flex justify-center mb-4">
           <img
@@ -69,13 +71,10 @@ export default function Login({ onLogin }) {
             className="w-20 h-20 object-cover rounded-full border-2 border-[var(--color-primary)]"
           />
         </div>
-
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
           PickNGo Admin Login
         </h1>
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Field */}
           <div>
             <label className="block text-sm font-medium mb-1">Email</label>
             <input
@@ -87,8 +86,6 @@ export default function Login({ onLogin }) {
               required
             />
           </div>
-
-          {/* Password Field */}
           <div>
             <label className="block text-sm font-medium mb-1">Password</label>
             <input
@@ -100,11 +97,7 @@ export default function Login({ onLogin }) {
               required
             />
           </div>
-
-          {/* Error Message */}
           {error && <div className="text-sm text-red-500">{error}</div>}
-
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-[var(--color-primary)] text-white py-2 rounded-lg font-semibold hover:bg-yellow-500 transition duration-200"

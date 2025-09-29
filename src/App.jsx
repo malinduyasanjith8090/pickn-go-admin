@@ -2,11 +2,12 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
+// Pages
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Booking from "./pages/Booking";
 
 // Placeholder pages
-const Booking = () => <div className="p-6">Booking Page</div>;
 const Profile = () => <div className="p-6">Profile Page</div>;
 const VehicleManagement = () => <div className="p-6">Vehicle Management Page</div>;
 const CustomerProfile = () => <div className="p-6">Customer Profile Page</div>;
@@ -22,49 +23,37 @@ const ADMIN_NAMES = {
 };
 
 export default function App() {
-  const [user, setUser] = useState(null); // null = not logged in
+  const [user, setUser] = useState(null);
 
   const handleLogin = (loggedInUser) => {
-    // Map email to name
     const name = ADMIN_NAMES[loggedInUser.email] || "Admin";
     setUser({ ...loggedInUser, name });
   };
 
-  const handleLogout = () => setUser(null);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
   return (
     <Router>
       <Routes>
-        {/* Default route */}
         <Route
           path="/"
-          element={
-            user ? (
-              <Navigate to="/admin/dashboard" />
-            ) : (
-              <Login onLogin={handleLogin} />
-            )
-          }
+          element={user ? <Navigate to="/admin/dashboard" /> : <Login onLogin={handleLogin} />}
         />
-
-        {/* Protected routes */}
         {user && (
           <>
-            <Route
-              path="/admin/dashboard"
-              element={<Dashboard user={user} onLogout={handleLogout} />}
-            />
-            <Route path="/admin/booking" element={<Booking />} />
+            <Route path="/admin/dashboard" element={<Dashboard user={user} onLogout={handleLogout} />} />
+            <Route path="/admin/booking" element={<Booking user={user} onLogout={handleLogout} />} />
             <Route path="/admin/profile" element={<Profile />} />
-            <Route path="/admin/vehical-management" element={<VehicleManagement />} />
+            <Route path="/admin/vehicle-management" element={<VehicleManagement />} />
             <Route path="/admin/customer-profile" element={<CustomerProfile />} />
             <Route path="/admin/feedback" element={<Feedback />} />
             <Route path="/admin/catalog" element={<Catalog />} />
             <Route path="/admin/settings" element={<Settings />} />
           </>
         )}
-
-        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
